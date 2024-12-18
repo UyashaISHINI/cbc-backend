@@ -5,6 +5,7 @@ import userRouter from './routes/userRouter.js';
 import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
 import productRouter from './routes/productRouter.js';
+import orderRouter from './routes/orderRouter.js';
 dotenv.config()
 
 const app = express();
@@ -39,6 +40,7 @@ app.use(
 
 app.use("/api/users",userRouter)
 app.use("/api/products",productRouter)
+app.use("/api/orders",orderRouter)
 
 app.listen(
     5000,
