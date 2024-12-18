@@ -8,9 +8,22 @@ export function createUser(req,res){
 
     const newUserData = req.body
 
-    newUserData.password = bcrypt.hashSync(newUserData.password,10)
+    if(newUserData.type == "admin"){
+        if(req.user == null){
+            res.json({
+                message: "Pleese login as administrator to create admin accounts"
+            })
+            return
+        }
+        if(req.user.type != "admin"){
+            res.json({
+                message: "Please login as administrator to create admin accounts"
+            })
+            return
+        }
+    }
 
-    console.log(newUserData)
+    newUserData.password = bcrypt.hashSync(newUserData.password,10)
 
     const  user  = new User(newUserData)
 
@@ -18,7 +31,7 @@ export function createUser(req,res){
         res.json({
             message : "User created"
         })
-    }).catch(()=>{
+    }).catch((error)=>{
         res.json({
             message : "User not created"
         })
@@ -65,3 +78,5 @@ export function loginUser(req,res){
     )
 
 }
+// admin = "email": "jane.doe@example.com" "password": "securepassword123",
+// customer = "email": "jony.doe@example.com","password": "jony.doe@example.com",
