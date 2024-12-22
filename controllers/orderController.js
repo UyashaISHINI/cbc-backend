@@ -28,6 +28,16 @@ export async function createOrder(req,res){
         }
 
         const newOrderData = req.body
+
+        const newProductArray = []
+
+        for(let i=0; i<req.body.orderedItems.length;i++){
+            
+            const product = await Product.findOne({
+                productId : newOrderData.orderedItems[i].productId
+            })
+        }
+        
         newOrderData.orderId = orderId
         newOrderData.email = req.user.email
 
@@ -55,3 +65,4 @@ export async function getOrders(req,res){
         })
     }
 }
+//jony7.doe@example.com securepassword123 admin
