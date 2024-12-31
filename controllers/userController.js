@@ -65,7 +65,14 @@ export function loginUser(req,res){
 
                     res.json({
                         message : "User logged in",
-                        token : token
+                        token : token,
+                        user:{
+                            firstName : user.firstName,
+                            lastName : user.lastName,
+                            type : user.type,
+                            profilePicture : user.profilePicture,
+                            email : user.email
+                        }
                     })
 
                 }else{
@@ -103,4 +110,4 @@ export function isCustomer(req){
     return true
 }
 // admin = "email": "jane.doe@example.com" "password": "securepassword123",
-// customer = "email": "jony.doe@example.com","password": "jony.doe@example.com",
+// customer =  "Sara.doe@example.com"","password": "123",
