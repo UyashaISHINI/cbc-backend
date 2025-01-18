@@ -1,37 +1,54 @@
 import Product from "../models/product.js";
 import { isAdmin } from "./userController.js";
 
-export function createProduct(req,res){
-    if(!isAdmin(req)){
-        res.json({
-            message : "Please login as administrator to add products"
-        })
-        return
+export function createProduct(req, res) {
+    // Check if the user is an admin
+    if (!isAdmin(req)) {
+        res.status(403).json({
+            message: "Access denied. Please login as an administrator to add products."
+        });
+        return;
     }
 
-    const newProductData = req.body
+    // Validate product data from the request body
+    const newProductData = req.body;
 
-    const product = new Product(newProductData)
+    if (!newProductData || !newProductData.productName || !newProductData.price) {
+        res.status(400).json({
+            message: "Invalid product data. Please provide a name and price."
+        });
+        return;
+    }
 
-    product.save().then(()=>{
-        res.json({
-            message : "Product created"
+    // Create a new product instance
+    const product = new Product(newProductData);
+
+    product
+        .save()
+        .then(() => {
+            res.status(201).json({
+                message: "Product created successfully",
+                product,
+            });
         })
-    }).catch((error)=>{
-        res.status(403).json({
-            message : error
-        })
-    })
+        .catch((error) => {
+            console.error("Error saving product:", error);
+            res.status(500).json({
+                message: "Failed to create product. Please try again.",
+                error: error.message || error,
+            });
+        });
 }
 
-export function getProducts(req,res){
-    Product.find({}).then((products)=>{
+
+export function getProducts(req, res) {
+    Product.find({}).then((products) => {
         res.json(products)
     })
 }
 
-export function deleteProduct(req,res){
-    if(!isAdmin(req)){
+export function deleteProduct(req, res) {
+    if (!isAdmin(req)) {
         res.status(403).json({
             message: "Please login as administrator to delete products"
         })
@@ -40,14 +57,14 @@ export function deleteProduct(req,res){
     const productId = req.params.productId
 
     Product.deleteOne(
-    {productId : productId}
-    ).then(()=>{
+        { productId: productId }
+    ).then(() => {
         res.json({
-            message : "Product deleted"
+            message: "Product deleted"
         })
-    }).catch((error)=>{
+    }).catch((error) => {
         res.status(403).json({
-            message : error
+            message: error
         })
     })
 }
