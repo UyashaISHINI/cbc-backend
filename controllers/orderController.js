@@ -86,4 +86,3 @@ export async function getOrders(req,res){
         })
     }
 }
-//jony7.doe@example.com securepassword123 admin

@@ -110,5 +110,5 @@ export function isCustomer(req){
 
     return true
 }
-// admin = "email": "jane.doe@example.com" "password": "securepassword123",
+// admin  "email": "dinuli@123.com", "password": "1234",
 // customer =  "Sara.doe@example.com"","password": "123",
