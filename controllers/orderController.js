@@ -10,7 +10,8 @@ export async function createOrder(req,res){
         })
     }
     try{
-        const latestOrder = await Order.find().sort({date : -1}).limit(1)
+        const latestOrder = await Order.find().sort({orderId : -1}).limit(1)
+        console.log(latestOrder);
 
         let orderId 
 
@@ -18,7 +19,7 @@ export async function createOrder(req,res){
             orderId = "CBC0001"
         }else{
             const currentOrderId = latestOrder[0].orderId
-
+            
             const numberString = currentOrderId.replace("CBC","")
 
             const number  = parseInt(numberString)
@@ -47,8 +48,8 @@ export async function createOrder(req,res){
 
             newProductArray[i] = {
                 name: product.productName,
-                price : product.price,
-                quantity : newOrderData.orderedItems[i].quantity,
+                price : product.lastPrice,
+                quantity : newOrderData.orderedItems[i].qty,
                 image : product.images[0]
             }
             
@@ -63,9 +64,11 @@ export async function createOrder(req,res){
 
         const order = new Order(newOrderData)
 
-        await order.save()
+        const savedOrder = await order.save()
+
         res.json({
-            message : "Order created"
+            message : "Order created",
+            order : savedOrder
         })
 
     }catch(error){
@@ -81,6 +84,55 @@ export async function getOrders(req,res){
         const orders = await Order.find({email : req.user.email})
         res.json(orders)
     }catch(error){
+        res.status(500).json({
+            message : error.message
+        })
+    }
+}
+
+export async function getQuote(req,res){
+    try{
+        const newOrderData = req.body
+
+        const newProductArray = []
+
+        let total = 0;
+        let labeledTotal = 0;
+        console.log(req.body)
+        for(let i=0; i<newOrderData.orderedItems.length;i++){
+
+            const product = await Product.findOne({
+                productId : newOrderData.orderedItems[i].productId
+            })
+
+            if(product == null){
+                res.json({
+                    message : "Product with id "+newOrderData.orderedItems[i].productId+" not found"
+                })
+                return
+            }
+            labeledTotal += product.price * newOrderData.orderedItems[i].qty;
+            total += product.lastPrice * newOrderData.orderedItems[i].qty;
+            newProductArray[i] = {
+                name: product.productName,
+                price : product.lastPrice,
+                labeledPrice : product.price,
+                quantity : newOrderData.orderedItems[i].qty,
+                image : product.images[0]
+            }
+            
+        }
+        console.log(newProductArray)
+
+        newOrderData.orderedItems = newProductArray
+        newOrderData.total = total;
+        res.json({
+            orderedItems : newProductArray,
+            total : total,
+            labeledTotal : labeledTotal
+        })
+    }catch(error){
+        console.log("Error:", error);
         res.status(500).json({
             message : error.message
         })
